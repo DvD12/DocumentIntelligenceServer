@@ -145,6 +145,33 @@ uv run python scripts/smoke.py
 
 Development without Docker: `uv sync`, start a local Qdrant (`docker run -p 6333:6333 qdrant/qdrant:v1.18.1`), then `uv run uvicorn app.main:create_app --factory`. Tests need no services and no API keys: `uv run pytest` (58 tests: deterministic fake embedder + Qdrant in-memory mode).
 
+### Trying the full flow by hand
+
+1. **Ingest** — upload through the UI (file + comma-separated tags), or via API:
+
+   ```bash
+   curl -u admin:$UI_PASSWORD -X POST http://localhost:8000/api/documents \
+     -F "file=@sample_docs/aml-policy.md" -F "tags=compliance"
+   ```
+
+   The response reports the dedup `outcome` (`created` / `updated` / `unchanged`) and the chunk count. Chunks themselves can be inspected in Qdrant's own dashboard at http://localhost:6333/dashboard (collection `chunks` — payload shows text, heading path, pages).
+
+2. **Query over MCP** — call the `search` tool exactly as an agent would:
+
+   ```bash
+   curl -X POST http://localhost:8000/mcp \
+     -H "Authorization: Bearer $MCP_API_KEY" \
+     -H "Content-Type: application/json" \
+     -H "Accept: application/json, text/event-stream" \
+     -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"search","arguments":{"query":"tier-2 transfer cap"}}}'
+   ```
+
+   The result contains ranked chunks with `document` and `location` (pages / heading path) for citation.
+
+3. **Or let an agent drive** — register the server in an MCP client (next section) and ask a question ("what are the tier-2 transfer caps?"); the agent picks a search tool, retrieves chunks, and answers with citations.
+
+`scripts/smoke.py` automates steps 1–2 plus an auth check.
+
 ## Connecting an MCP client
 
 Claude Code:
