@@ -63,6 +63,8 @@ class QdrantStore:
         self._client.upsert(collection_name=COLLECTION, points=points)
 
     def delete_document(self, document_id: str) -> None:
+        if not self._client.collection_exists(COLLECTION):
+            return  # nothing ingested yet: nothing to delete
         self._client.delete(
             collection_name=COLLECTION,
             points_selector=models.FilterSelector(filter=_doc_filter([document_id])),
