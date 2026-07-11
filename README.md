@@ -201,7 +201,13 @@ Hosts namespace tools per server, so our generic names (`search`, …) can't col
 
 `docker-compose.yml` is the reference environment. Live deployment: the app container on any Dockerfile-consuming platform (Railway/Fly.io/Render) + Qdrant Cloud free tier for vectors + a persistent volume for the SQLite file. All secrets via platform env vars; nothing in the image or repo.
 
-<!-- LIVE-URLS: filled at deployment -->
+**Live deployment** (Railway + Qdrant Cloud free tier):
+
+- Management UI: https://documentintelligenceserver-production.up.railway.app (HTTP Basic)
+- MCP endpoint: `https://documentintelligenceserver-production.up.railway.app/mcp` (Bearer token)
+- Health: https://documentintelligenceserver-production.up.railway.app/healthz
+
+Credentials are provided separately to reviewers, not in this repository.
 
 ## Known limitations & future work
 
