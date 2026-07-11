@@ -21,7 +21,7 @@
 - All agent-facing errors: structured guidance (`{"error": code, "message": actionable text with valid values + fuzzy suggestions}`), never stack traces.
 - Secrets/config via env only (pydantic-settings); `.env` gitignored; `.env.example` current at all times.
 - Tests use `FakeEmbedder` (deterministic, word-hash) and `QdrantClient(":memory:")` — no API keys, no containers needed. First fastembed use downloads the tiny BM25 model artifacts (network needed once).
-- **One commit per task** (user rule, overrides commit-per-step). Run `uv run pytest` green + `uv run ruff check .` clean before every commit.
+- **Atomic commits, one per smallest coherent unit of work** (user preference 2026-07-11, supersedes the literal "one commit per task" in dev_rules). Small tasks = one commit; bundle tasks (11, 12) = one commit per component. Run `uv run pytest` green + `uv run ruff check .` clean before every commit.
 - Windows dev machine: prefer `uv run` prefixes; paths in code POSIX-style (pathlib).
 
 ---
@@ -2860,7 +2860,7 @@ This task is writing, not coding — source material is the spec (`docs/superpow
 
 - [ ] **Step 2: Draft `docs/part1-ai-assisted-coding.md` (max 1 page)**
 
-Three sections mirroring the assignment's three questions. Draft from the conversation-established sketch: (1) spec-first workflow, CLAUDE.md/rules files, skills/hooks, plan→implement→verify; tutor-mode for unfamiliar domains vs accelerant-mode for familiar .NET; (2) value = boilerplate elimination, cross-stack mobility (this repo as evidence), compressed learning; risks = plausible-but-wrong code, stale API knowledge (mitigated here via live docs lookup — cite the FastMCP→MCPServer v2 rename caught during planning), tool descriptions as contracts with probabilistic consumers, injection surface in retrieved content; (3) role → specify/verify/orchestrate; durable skills = decomposition, evals, trust boundaries, client communication. **Mark file as DRAFT — user must rewrite in own voice before submission.**
+**Write the draft in Italian** (indigo.ai is an Italian company; assignment text being English doesn't change the audience). Three sections mirroring the assignment's three questions. Draft from the conversation-established sketch: (1) spec-first workflow, CLAUDE.md/rules files, skills/hooks, plan→implement→verify; tutor-mode for unfamiliar domains vs accelerant-mode for familiar .NET; (2) value = boilerplate elimination, cross-stack mobility (this repo as evidence), compressed learning; risks = plausible-but-wrong code, stale API knowledge (mitigated here via live docs lookup — cite the FastMCP→MCPServer v2 rename caught during planning), tool descriptions as contracts with probabilistic consumers, injection surface in retrieved content; (3) role → specify/verify/orchestrate; durable skills = decomposition, evals, trust boundaries, client communication. **Mark file as DRAFT — user must rewrite in own voice before submission. Do NOT commit this file until the user has reviewed and accepted it; the Task 13 commit covers README only.**
 
 - [ ] **Step 3: Verify docs against reality**
 
