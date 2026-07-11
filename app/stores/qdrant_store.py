@@ -1,5 +1,6 @@
 import uuid
 
+from fastembed import SparseTextEmbedding
 from qdrant_client import QdrantClient, models
 
 from app.core.models import Chunk
@@ -24,6 +25,10 @@ class QdrantStore:
     def __init__(self, client: QdrantClient, dense_dim: int) -> None:
         self._client = client
         self._dense_dim = dense_dim
+        # BM25 vectors are computed client-side: passing models.Document to a
+        # real Qdrant server requests *server-side* inference (cloud-only) and
+        # fails with "InferenceService is not initialized".
+        self._sparse = SparseTextEmbedding(SPARSE_MODEL)
 
     def ensure_collection(self) -> None:
         if self._client.collection_exists(COLLECTION):
@@ -41,13 +46,14 @@ class QdrantStore:
         )
 
     def upsert_chunks(self, chunks: list[Chunk], dense_vectors: list[list[float]]) -> None:
+        sparse_vectors = [
+            models.SparseVector(indices=e.indices.tolist(), values=e.values.tolist())
+            for e in self._sparse.embed([c.prefixed_text for c in chunks])
+        ]
         points = [
             models.PointStruct(
                 id=point_id(c.document_id, c.chunk_index),
-                vector={
-                    "dense": v,
-                    "sparse": models.Document(text=c.prefixed_text, model=SPARSE_MODEL),
-                },
+                vector={"dense": v, "sparse": s},
                 payload={
                     "document_id": c.document_id,
                     "chunk_index": c.chunk_index,
@@ -58,7 +64,7 @@ class QdrantStore:
                     "token_count": c.token_count,
                 },
             )
-            for c, v in zip(chunks, dense_vectors, strict=True)
+            for c, v, s in zip(chunks, dense_vectors, sparse_vectors, strict=True)
         ]
         self._client.upsert(collection_name=COLLECTION, points=points)
 
@@ -75,12 +81,16 @@ class QdrantStore:
         document_ids: list[str] | None = None,
     ) -> list:
         qfilter = _doc_filter(document_ids) if document_ids else None
+        sparse_query = next(iter(self._sparse.query_embed(query_text)))
         result = self._client.query_points(
             collection_name=COLLECTION,
             prefetch=[
                 models.Prefetch(query=dense_query, using="dense", limit=20, filter=qfilter),
                 models.Prefetch(
-                    query=models.Document(text=query_text, model=SPARSE_MODEL),
+                    query=models.SparseVector(
+                        indices=sparse_query.indices.tolist(),
+                        values=sparse_query.values.tolist(),
+                    ),
                     using="sparse", limit=20, filter=qfilter,
                 ),
             ],
