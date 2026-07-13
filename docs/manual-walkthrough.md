@@ -29,7 +29,7 @@ docker compose up --build
 Wait for the app to report healthy, then confirm the two stores are reachable:
 
 ```bash
-curl -s http://localhost:8000/healthz          # -> {"status":"ok",...}
+curl -s http://localhost:8000/healthz          # -> {"status":"ok"}
 ```
 
 - UI: http://localhost:8000 (HTTP Basic — any username, `UI_PASSWORD`)
@@ -181,7 +181,7 @@ UI/API. Read-only surface by design.
 
 ### One-command sanity check
 
-If you just want the automated version of steps 1–4's happy path:
+If you just want the automated happy path (start checks, one ingest, one MCP search, the auth 401 — no agent attach):
 
 ```bash
 uv run python scripts/smoke.py

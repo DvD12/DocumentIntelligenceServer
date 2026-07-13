@@ -170,7 +170,7 @@ Development without Docker: `uv sync`, start a local Qdrant (`docker run -p 6333
 
 3. **Or let an agent drive** — register the server in an MCP client (next section) and ask a question ("what are the tier-2 transfer caps?"); the agent picks a search tool, retrieves chunks, and answers with citations.
 
-`scripts/smoke.py` automates steps 1–2 plus an auth check.
+`scripts/smoke.py` automates steps 1–2 plus an auth check. For the full guided tour — a real multi-document corpus (`scripts/fetch_corpus.py`), an agent prompt playbook that exercises each of the seven tools, and hands-on validation of dedup/versioning and auth — see [docs/manual-walkthrough.md](docs/manual-walkthrough.md).
 
 ## Connecting an MCP client
 
