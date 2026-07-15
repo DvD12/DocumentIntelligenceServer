@@ -17,6 +17,8 @@ EDD - Enhanced Due Diligence. Deeper checks triggered by risk signals or Osprey 
 
 Halcyon - Meridian's ledger and reconciliation platform: audit trail of record, end-of-quarter reconciliation, clawback processing. Retention: seven years.
 
+Integrator - Engineer at a member institution who builds and maintains that institution's connection to the Kestrel API: submitting instructions, handling KSN-ERR codes, consuming webhooks. Onboarding requires a technical contact register naming at least two integrators (ONB-2026-K).
+
 KES-eq - Kenyan-shilling equivalent. All Kestrel limits are expressed in KES-eq regardless of instruction currency.
 
 Kestrel / KSN - Kestrel Instant Settlement Network, Meridian's real-time interbank settlement rail. Governing policy: KSN-2027-A.
