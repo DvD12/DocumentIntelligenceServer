@@ -72,11 +72,12 @@ signal; treat any single query's tool choice as noise.
 **Primary:** `get_document_outline`.
 **Ground truth:** ~12 top-level sections incl. product family, Kestrel, Aviary, Tern FX, Sunbird, instruction lifecycle, regional availability, worked fee examples, appendices. Page ranges present (it's a PDF).
 
-### Q9 — neighborhood fetch (expand_chunk trigger)
-**Ask (after any hit in the failover runbook table of the BCP):** That table looks cut off — show me the surrounding context of that exact spot.
-**Primary:** `expand_chunk` with `document_id` + `chunk_index` from the hit.
-**Why:** the docstring's literal trigger ("a hit is cut off"); params are fillable only from a prior result, so this can never fire cold.
-**Ground truth:** steps F1–F6 with owners and target times; F5 = resume settlement at T+15 min.
+### Q9 — neighborhood fetch (expand_chunk trigger, two-step)
+**Ask (a):** According to the Kestrel settlement policy, what fees does a Tier-K3 participant pay?
+**Ask (b, follow-up):** That result mentions an "aforementioned single-instruction ceiling" — pull the chunks around that spot so I can see what it refers to.
+**Primary:** (a) `search` or `search_by_document`, landing on the §2.2 Fees chunk, whose text literally says "The aforementioned single-instruction ceiling in §2.1…"; (b) `expand_chunk` with the `document.id` and `location.chunk_index` from that hit (`before≥1`), which returns the §2.1 tier-definitions chunk.
+**Why:** this is the docstring's "references nearby context" trigger, planted deliberately in the corpus. The params are fillable only from a prior result, so (b) can never fire cold — (a) exists to put them in context. (Note: the "cut off" trigger is hard to stage here — the chunker keeps even the BCP's F1–F6 runbook table in one chunk, which is the chunking strategy working as intended.)
+**Ground truth:** (a) 2.5 units per instruction, no waiver (KSN-2027-A §2.2); (b) the expansion surfaces §2.1 — Tier-K3 cap 750,000 KES-eq per instruction and 40,000,000 per rolling 24h, Tier-K2 ceiling 8,000,000.
 
 ### Q10 — error guidance (self-correction)
 **Ask:** Search the complience documents for the EDD refresh schedule.
