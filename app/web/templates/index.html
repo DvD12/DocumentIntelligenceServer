@@ -28,7 +28,7 @@
 
   <table>
     <thead>
-      <tr><th>Filename</th><th>Tags</th><th>Chunks</th><th>Uploaded</th><th></th></tr>
+      <tr><th>Filename</th><th>Tags</th><th>Chunks</th><th>Uploaded</th><th>Updated</th><th></th></tr>
     </thead>
     <tbody>
       {% for doc in documents %}
@@ -37,10 +37,11 @@
         <td>{% for tag in doc.tags %}<span class="tag">{{ tag }}</span>{% endfor %}</td>
         <td>{{ doc.chunk_count }}</td>
         <td>{{ doc.uploaded_at.strftime("%Y-%m-%d %H:%M") }}</td>
+        <td>{{ doc.updated_at.strftime("%Y-%m-%d %H:%M") }}</td>
         <td><button data-id="{{ doc.id }}" class="delete">Delete</button></td>
       </tr>
       {% else %}
-      <tr><td colspan="5">No documents yet — upload one above.</td></tr>
+      <tr><td colspan="6">No documents yet — upload one above.</td></tr>
       {% endfor %}
     </tbody>
   </table>
