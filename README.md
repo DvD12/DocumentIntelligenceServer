@@ -146,7 +146,7 @@ Verify end-to-end (uploads a sample doc, queries via MCP, checks auth):
 uv run python scripts/smoke.py
 ```
 
-Development without Docker: `uv sync`, start a local Qdrant (`docker run -p 6333:6333 qdrant/qdrant:v1.18.1`), then `uv run uvicorn app.main:create_app --factory`. Tests need no services and no API keys: `uv run pytest` (58 tests: deterministic fake embedder + Qdrant in-memory mode).
+Development without Docker: `uv sync`, start a local Qdrant (`docker run -p 6333:6333 qdrant/qdrant:v1.18.1`), then `uv run uvicorn app.main:create_app --factory`. Tests need no services and no API keys: `uv run pytest` (59 tests: deterministic fake embedder + Qdrant in-memory mode).
 
 ### Trying the full flow by hand
 
@@ -245,6 +245,7 @@ Credentials are provided separately to reviewers, not in this repository.
 - SQLite → Postgres when running multiple app instances.
 - Static Bearer → OAuth 2.1 resource server for real multi-client auth.
 - Re-ranking with a cross-encoder after RRF; LLM auto-tagging at ingestion.
+- No staging environment online, only live prod.
 
 ## AI-assisted development
 
@@ -254,5 +255,6 @@ Where AI was used, in one paragraph: architecture and trade-off exploration (vec
 
 ## Where the AI failed
 
-- Tool testing falls flat, user steered AI towards creating plausible docs for scrupolous tool testing
-- Claude Desktop MCP setup was broken altogether, user fixed it with AI help
+- Tool testing falls flat, I steered AI towards creating plausible docs for scrupolous tool testing
+- Claude Desktop MCP setup was broken altogether, I fixed it with AI help
+- AI never mentioned real-world best practices for deployment: just suggested running the app on Railway and we're good to go. But we would benefit from a staging/prod split, as that would allow me to run end-to-end tests in a non-critical environment whose results, most importantly, would be more impactful than local. For instance, I caught document deletion failing only on live — it 500'd because Qdrant Cloud rejects a filtered delete on an unindexed payload field, while local Docker Qdrant (and the in-memory test mode) happily allow it, so neither the test suite nor localhost surfaced the bug. That's the same "local masks cloud-only behavior" class as the `models.Document` upsert issue above, and the fix was to create the `document_id` payload index at startup. A staging environment would have caught it before prod — but only because it would run against the real Qdrant Cloud backend, not a local container; a staging env that mirrors local's store would have missed it just the same. The general lesson: staging is only worth its cost when it mirrors prod's *infrastructure*, not just its code.
