@@ -28,7 +28,7 @@ def main() -> None:
         assert c.get("/healthz").json()["status"] == "ok", "healthz failed"
         print("healthz ok")
 
-        doc = pathlib.Path("sample_docs/aml-policy.md")
+        doc = pathlib.Path("test_corpus/meridian/docs/meridian-aml-policy.md")
         r = c.post(
             "/api/documents", auth=UI_AUTH,
             files={"file": (doc.name, doc.read_bytes(), "text/markdown")},
