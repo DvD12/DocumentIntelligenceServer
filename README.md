@@ -246,6 +246,7 @@ Credentials are provided separately to reviewers, not in this repository.
 - Static Bearer → OAuth 2.1 resource server for real multi-client auth.
 - Re-ranking with a cross-encoder after RRF; LLM auto-tagging at ingestion.
 - No staging environment online, only live prod.
+- Tag suggestions on document upload (weigh against the LLM token cost to analyze doc)
 
 ## AI-assisted development
 
