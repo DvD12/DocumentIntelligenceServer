@@ -151,7 +151,7 @@ Development without Docker: `uv sync`, start a local Qdrant (`docker run -p 6333
 
    ```bash
    curl -u admin:$UI_PASSWORD -X POST http://localhost:8000/api/documents \
-     -F "file=@sample_docs/aml-policy.md" -F "tags=compliance"
+     -F "file=@test_corpus/meridian/docs/meridian-aml-policy.md" -F "tags=compliance"
    ```
 
    The response reports the dedup `outcome` (`created` / `updated` / `unchanged`) and the chunk count. Chunks themselves can be inspected in Qdrant's own dashboard at http://localhost:6333/dashboard (collection `chunks` — payload shows text, heading path, pages).
@@ -170,7 +170,7 @@ Development without Docker: `uv sync`, start a local Qdrant (`docker run -p 6333
 
 3. **Or let an agent drive** — register the server in an MCP client (next section) and ask a question ("what are the tier-2 transfer caps?"); the agent picks a search tool, retrieves chunks, and answers with citations.
 
-`scripts/smoke.py` automates steps 1–2 plus an auth check. For the full guided tour — a real multi-document corpus (`scripts/fetch_corpus.py`), an agent prompt playbook that exercises each of the seven tools, and hands-on validation of dedup/versioning and auth — see [docs/manual-walkthrough.md](docs/manual-walkthrough.md).
+`scripts/smoke.py` automates steps 1–2 plus an auth check. For the full guided tour — an eleven-document fictional corpus (`test_corpus/meridian/`, invented facts so answers provably come from retrieval, not training data), a query playbook that exercises each of the seven tools, and hands-on validation of dedup/versioning and auth — see [docs/manual-walkthrough.md](docs/manual-walkthrough.md).
 
 ## Connecting an MCP client
 
