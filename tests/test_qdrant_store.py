@@ -1,5 +1,5 @@
 import pytest
-from qdrant_client import QdrantClient
+from qdrant_client import QdrantClient, models
 
 from app.core.models import Chunk
 from app.ingestion.embedder import FakeEmbedder
@@ -53,6 +53,30 @@ def test_upsert_is_idempotent(store):
     _ingest(store, "d1", ["alpha text", "beta text"])
     _ingest(store, "d1", ["alpha text", "beta text"])
     assert len(store.all_chunks("d1")) == 2
+
+
+def test_ensure_collection_indexes_document_id():
+    # Qdrant Cloud rejects a filtered delete/update on an unindexed payload
+    # field ("Index required but not found for document_id"); local Qdrant is
+    # lax and allows it, so this only bites in the cloud. Local :memory: mode
+    # also ignores payload indexes entirely ("no effect in the local Qdrant"),
+    # so assert the index-creation call is made rather than its reflected state.
+    client = QdrantClient(":memory:")
+    calls: list[dict] = []
+    original = client.create_payload_index
+
+    def spy(**kwargs):
+        calls.append(kwargs)
+        return original(**kwargs)
+
+    client.create_payload_index = spy
+    QdrantStore(client, dense_dim=64).ensure_collection()
+
+    assert any(
+        c.get("field_name") == "document_id"
+        and c.get("field_schema") == models.PayloadSchemaType.KEYWORD
+        for c in calls
+    )
 
 
 def test_delete_document_removes_all_points(store):

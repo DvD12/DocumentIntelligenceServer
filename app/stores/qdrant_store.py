@@ -31,18 +31,27 @@ class QdrantStore:
         self._sparse = SparseTextEmbedding(SPARSE_MODEL)
 
     def ensure_collection(self) -> None:
-        if self._client.collection_exists(COLLECTION):
-            return
-        self._client.create_collection(
+        if not self._client.collection_exists(COLLECTION):
+            self._client.create_collection(
+                collection_name=COLLECTION,
+                vectors_config={
+                    "dense": models.VectorParams(
+                        size=self._dense_dim, distance=models.Distance.COSINE
+                    )
+                },
+                sparse_vectors_config={
+                    "sparse": models.SparseVectorParams(modifier=models.Modifier.IDF)
+                },
+            )
+        # Qdrant Cloud rejects a filtered delete/update on an unindexed payload
+        # field with 400 "Index required but not found for document_id"; local
+        # Qdrant allows it, so the gap only surfaces in the cloud. Filtered reads
+        # (search) work without it, filtered deletes do not. Idempotent — runs on
+        # every ingest and at startup, so existing collections gain the index too.
+        self._client.create_payload_index(
             collection_name=COLLECTION,
-            vectors_config={
-                "dense": models.VectorParams(
-                    size=self._dense_dim, distance=models.Distance.COSINE
-                )
-            },
-            sparse_vectors_config={
-                "sparse": models.SparseVectorParams(modifier=models.Modifier.IDF)
-            },
+            field_name="document_id",
+            field_schema=models.PayloadSchemaType.KEYWORD,
         )
 
     def upsert_chunks(self, chunks: list[Chunk], dense_vectors: list[list[float]]) -> None:

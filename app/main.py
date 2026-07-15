@@ -43,6 +43,10 @@ def create_app(
 
     @contextlib.asynccontextmanager
     async def lifespan(app: FastAPI):
+        # Create the collection + its payload index up front so an already-
+        # deployed collection gains the document_id index without a re-ingest
+        # (filtered deletes need it on Qdrant Cloud). Idempotent.
+        store.ensure_collection()
         # A mounted sub-app's lifespan never runs: the host must run the
         # MCP session manager itself or the first /mcp request fails.
         async with mcp.session_manager.run():
