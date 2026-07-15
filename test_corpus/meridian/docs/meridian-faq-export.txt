@@ -1,0 +1,63 @@
+MERIDIAN FINANCIAL - INTERNAL FAQ EXPORT (FAQ-2027-Q2)
+Exported from the People Operations FAQ channel, 2027-06-30.
+Unstructured export - questions in original ask order.
+
+Q: A member institution says their payment got error KSN-ERR-402. What do I tell them?
+A: Their instruction exceeded the single-instruction ceiling for their Kestrel tier (8,000,000 KES-eq for Tier-K2, 750,000 for Tier-K3). They should split the instruction below the ceiling and resubmit. Rejected instructions are not billed.
+
+Q: Client asks why their transfer over 10,000 EUR was blocked. They are an SME.
+A: SME clients are tier-2 under AML-2024-B and have a 10,000 EUR/day transfer cap. Exceptions need written approval from the compliance desk within two business days. Do not confuse this with Kestrel participant tiers - different thing entirely.
+
+Q: What is the daily wallet cap on Sunbird?
+A: 500,000 KES per wallet per day for verified users, 50,000 KES for unverified. Caps are set by product, not by AML client tier.
+
+Q: When is the cutoff for same-day FX on Tern?
+A: 15:30 EAT for same-day value in EAC currencies. After cutoff, trades book for next business day. Forwards are unaffected by the cutoff.
+
+Q: How do I get sandbox access for a new integrator?
+A: Since v2026.3 they can self-request a sandbox KPI (KPI-S) through Aviary, but only after onboarding milestone M2 is signed off. Note KPI-S now expires after 90 days of inactivity.
+
+Q: A participant reported KSN-ERR-503 and keeps resubmitting. Escalate?
+A: Yes - tell them to STOP resubmitting immediately. 503 means the Vireo hub is degraded; instructions auto-replay when the hub clears. Manual resubmission risks duplicate settlement, which only the Halcyon clawback can recover, and clawbacks must be raised within two business days.
+
+Q: How many vacation days do I have?
+A: You accrue 2 days per month, capped at 30 days total. See HR-2025-A.
+
+Q: Can I work from Kigali for a month?
+A: Up to 30 calendar days per year in EAC member states with prior notice to People Operations. Kigali qualifies. Longer, or outside the EAC, needs Finance clearance via form HR-WA-02 - allow four weeks.
+
+Q: What is the home office stipend and how do I claim it?
+A: One-time 45,000 KES within your first 90 days of hybrid/remote arrangement. Expense code HR-EQ-45.
+
+Q: Who can access the raw Halcyon ledger?
+A: Nobody alone. Raw ledger access requires dual authorization from Payments Operations AND Internal Audit. Aggregated stats are published monthly as KSN-STAT - point people there first.
+
+Q: A screening hit came up on the Osprey list. Who handles it?
+A: Any transaction at or above 1,000,000 KES-eq that hits the Osprey list goes to manual review under code SCR-11. Do not release the transaction while review is pending. Details in SCR-2026-A.
+
+Q: What are the support SLAs for member institutions on Aviary?
+A: Response within 4 business hours for Tier-K2 participants, next business day for Tier-K3. Tier-K1 anchors have a dedicated channel, no ticket queue.
+
+Q: When does the quarterly freeze happen and does it affect clients?
+A: Last business day of each quarter, 23:00-23:45 EAT. Non-K1 instructions queue instead of settling while Halcyon runs end-of-quarter reconciliation. Retail clients rarely notice; warn corporate clients settling late-night quarter-end payrolls.
+
+Q: My new hire has no badge yet. Normal?
+A: Badges are provisioned by IT on day one. If it is day two, raise it with IT. Also make sure they finish security training in week one and enrol in payroll before the 15th.
+
+Q: Are legacy kestrel_ API tokens still valid?
+A: No. Everything rotated to the mfk_ prefix format; legacy kestrel_ tokens are rejected since 2026-12-31. Integrators still on old tokens must re-issue through Aviary.
+
+Q: What is the rate limit for instruction submission?
+A: Since v2027.2: 120 instructions/second for Tier-K2, 20/s for Tier-K3, returning KSN-ERR-429 when exceeded. A 429 does NOT suspend the KPI - retry with backoff.
+
+Q: A participant's KPI got suspended (KSN-ERR-417). What now?
+A: They must clear the funding shortfall on their Vireo account before resubmitting anything. Suspension lifts automatically once funded; no ticket needed.
+
+Q: Can I use my personal laptop for a quick Halcyon check from home?
+A: Absolutely not. Personal devices must never access Halcyon or Vireo operations consoles. Company hardware plus Perch VPN with hardware-token MFA, always.
+
+Q: How fast is settlement, really?
+A: Finality within 4 seconds during the prime window (05:00-22:00 EAT), 30 seconds off-peak. If a client claims it took minutes, collect the instruction id and check the finality endpoint added in v2027.2.
+
+Q: Where do SAR reports go and how fast?
+A: Through the SAR workflow within 24 hours of detecting suspicious activity. This clock is regulatory - do not sit on it over a weekend.

@@ -1,0 +1,68 @@
+MERIDIAN FINANCIAL - GLOSSARY OF TERMS AND CODES (GLS-2027-A)
+Maintained by Knowledge Management. One term per entry.
+
+Aviary - Web portal for Kestrel member institutions: KPI management, statements, sandbox (KPI-S) self-service, support tickets.
+
+AML-2024-B - Meridian's anti-money-laundering policy. Defines CLIENT tiers (tier-1 institutional, tier-2 SME, tier-3 retail) and transfer caps. Not to be confused with Kestrel participant tiers.
+
+BCP-2026-M - Business Continuity Plan covering the Vireo hub and settlement operations, including the incident severity scale and on-call roster.
+
+CDD - Customer Due Diligence. Baseline identity and risk checks at client onboarding under AML-2024-B.
+
+EAC - East African Community. Meridian's operating region; relevant to Tern FX currency coverage and the working-abroad rule in HR-2026-C.
+
+EAPC - East African Payments Council. Regional regulator overseeing the Kestrel settlement rail.
+
+EDD - Enhanced Due Diligence. Deeper checks triggered by risk signals or Osprey list proximity; governed by SCR-2026-A.
+
+Halcyon - Meridian's ledger and reconciliation platform: audit trail of record, end-of-quarter reconciliation, clawback processing. Retention: seven years.
+
+KES-eq - Kenyan-shilling equivalent. All Kestrel limits are expressed in KES-eq regardless of instruction currency.
+
+Kestrel / KSN - Kestrel Instant Settlement Network, Meridian's real-time interbank settlement rail. Governing policy: KSN-2027-A.
+
+KPI - Kestrel Participant Identifier. The credential a member institution settles under. Suspension code: KSN-ERR-417.
+
+KPI-S - Sandbox variant of a KPI. Self-service via Aviary since v2026.3; expires after 90 days of inactivity since v2027.2.
+
+KSN-ERR-402 - Single-instruction ceiling exceeded. Participant-correctable: split and resubmit.
+
+KSN-ERR-417 - KPI suspended for funding shortfall. Clears automatically when the Vireo funding account is topped up.
+
+KSN-ERR-429 - Participant rate limit exceeded (120/s Tier-K2, 20/s Tier-K3). Retry with backoff; does not suspend the KPI.
+
+KSN-ERR-503 - Vireo hub degraded. NEVER resubmit manually; auto-replay applies. Duplicates recoverable only via Halcyon clawback within two business days.
+
+KSN-STAT - Monthly aggregated settlement statistics published to member institutions.
+
+M2 - Onboarding milestone 2 in ONB-2026-K: integration test sign-off, prerequisite for sandbox (KPI-S) issuance.
+
+mfk_ - Prefix format of current Meridian API tokens. Legacy kestrel_ tokens rejected since 2026-12-31.
+
+ONB-2026-K - Kestrel participant onboarding guide: milestones M1-M4, sandbox rules, cutover requirements (three consecutive green settlement drills).
+
+Osprey list - Meridian's consolidated sanctions and watchlist, refreshed daily at 04:00 EAT. Screening threshold for manual review: 1,000,000 KES-eq (code SCR-11).
+
+PAY-2025-C - Policy governing card, cheque, and legacy ACH-equivalent flows. Everything Kestrel does NOT cover.
+
+Perch VPN - Mandatory remote-access VPN client, hardware-token MFA. Required for any production settlement system access per HR-2026-C.
+
+Prime window - 05:00-22:00 EAT. Settlement finality target: 4 seconds. Off-peak (22:00-05:00): 30 seconds.
+
+RTO / RPO - Recovery Time / Recovery Point Objectives for settlement services, defined per service in BCP-2026-M.
+
+SAR - Suspicious Activity Report. Must be filed through the SAR workflow within 24 hours per AML-2024-B.
+
+SCR-11 - Manual-review code for Osprey list hits at or above the screening threshold.
+
+SCR-2026-A - Sanctions Screening Standard: Osprey list governance, thresholds, escalation matrix.
+
+SEV-1 to SEV-4 - Incident severity scale in BCP-2026-M. SEV-1 = hub-wide settlement stall, auto-pages Payments Operations on-call.
+
+Sunbird - SME and retail payments wallet. Daily caps: 500,000 KES verified, 50,000 KES unverified.
+
+Tern FX - Corporate currency desk. Same-day cutoff 15:30 EAT for EAC currencies.
+
+Tier-K1 / Tier-K2 / Tier-K3 - Kestrel PARTICIPANT tiers (Anchor / Direct / Indirect) defined in KSN-2027-A. Distinct from AML client tiers.
+
+Vireo Clearing Hub - The clearing infrastructure Kestrel runs on; hosts participant funding accounts and executes settlement windows.
