@@ -51,7 +51,8 @@ def build_mcp(
         Use this to discover what documents exist (e.g. before choosing a scoped
         search, or to answer "which documents cover X" by name). Returns id,
         filename, tags, chunk_count and timestamps per document. This is NOT a
-        content search — for questions about what documents SAY, use `search`.
+        content search — for questions about what documents SAY, use `search`,
+        `search_by_tag` or `search_by_document`.
         """
         docs = repo.list_documents()
         return {
@@ -82,8 +83,8 @@ def build_mcp(
     def search(query: str, top_k: TopK = 8) -> dict:
         """Semantic + keyword (hybrid) search across the ENTIRE knowledge base.
 
-        The default search tool: use it when the question does not clearly
-        belong to one topic area or one known document. Matches by meaning AND
+        Use when the question does not clearly belong to one topic area (prefer `search_by_tag`)
+        or one known document (prefer `search_by_document`). Matches by meaning AND
         by exact terms, so include distinctive identifiers from the user's
         question (codes, acronyms, product names) verbatim in `query`. Returns
         the top_k most relevant chunks with their source document and a
