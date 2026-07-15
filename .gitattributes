@@ -1,0 +1,2 @@
+# Never normalize line endings in binary artifacts.
+*.pdf binary
