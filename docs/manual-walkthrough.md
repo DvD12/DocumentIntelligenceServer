@@ -74,22 +74,32 @@ claude mcp add --transport http docintel http://localhost:8000/mcp \
   --header "Authorization: Bearer <MCP_API_KEY>"
 ```
 
-**Claude Desktop** (`claude_desktop_config.json`):
+**Claude Desktop** (`claude_desktop_config.json`) — its `mcpServers` block only
+accepts **stdio** servers, so the HTTP endpoint is wrapped with the `mcp-remote`
+bridge (the custom-connector UI is OAuth-only and won't take a static Bearer
+token). The header carries no space after `Authorization:` — `mcp-remote` splits
+args on whitespace, so the value goes through the `${AUTH}` env var. Needs Node
+on PATH.
 
 ```json
 {
   "mcpServers": {
     "docintel": {
-      "type": "http",
-      "url": "http://localhost:8000/mcp",
-      "headers": {"Authorization": "Bearer <MCP_API_KEY>"}
+      "command": "npx",
+      "args": [
+        "-y", "mcp-remote",
+        "http://localhost:8000/mcp",
+        "--header", "Authorization:${AUTH}"
+      ],
+      "env": {"AUTH": "Bearer <MCP_API_KEY>"}
     }
   }
 }
 ```
 
-Confirm the agent lists seven tools: `search`, `search_by_tag`,
-`search_by_document`, `list_documents`, `list_tags`, `get_document_outline`,
+Fully quit and reopen Claude Desktop, then click `+` (beneath chat), -> Connectors —
+you should see `docintel`. Click `Manage connectors` to see its tools: `search`,
+`search_by_tag`, `search_by_document`, `list_documents`, `list_tags`, `get_document_outline`,
 `expand_chunk`.
 
 ## 5. Query playbook

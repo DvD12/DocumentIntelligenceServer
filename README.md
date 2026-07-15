@@ -4,6 +4,9 @@ Backend infrastructure that turns a folder of internal documents (policies, manu
 
 Built as the practical assignment for indigo.ai's *AI Solutions Engineer* role. The scenario: a financial-services client wants employees to ask questions in natural language and get precise, grounded, **citable** answers from their document base.
 
+- Management UI: `https://documentintelligenceserver-production.up.railway.app` (HTTP Basic)
+- MCP endpoint: `https://documentintelligenceserver-production.up.railway.app/mcp` (Bearer token)
+
 ## Architecture
 
 ```
@@ -177,23 +180,47 @@ Development without Docker: `uv sync`, start a local Qdrant (`docker run -p 6333
 Claude Code:
 
 ```bash
-claude mcp add --transport http docintel https://<host>/mcp \
+claude mcp add --transport http docintel https://documentintelligenceserver-production.up.railway.app/mcp \
   --header "Authorization: Bearer <MCP_API_KEY>"
 ```
 
-Claude Desktop / generic JSON config:
+verify: from terminal, check with `/mcp`.
+
+Generic HTTP clients (Cursor, and any client that reads an `.mcp.json` with a native HTTP transport):
 
 ```json
 {
   "mcpServers": {
     "docintel": {
       "type": "http",
-      "url": "https://<host>/mcp",
+      "url": "https://documentintelligenceserver-production.up.railway.app/mcp",
       "headers": {"Authorization": "Bearer <MCP_API_KEY>"}
     }
   }
 }
 ```
+
+Claude Desktop (`claude_desktop_config.json`) — its `mcpServers` block only accepts **stdio** servers, so a remote HTTP endpoint must be wrapped with the `mcp-remote` bridge. The custom-connector UI won't work here: it only supports OAuth, and this endpoint uses a static Bearer token.
+
+```json
+{
+  "mcpServers": {
+    "docintel": {
+      "command": "npx",
+      "args": [
+        "-y", "mcp-remote",
+        "https://documentintelligenceserver-production.up.railway.app/mcp",
+        "--header", "Authorization:${AUTH}"
+      ],
+      "env": {"AUTH": "Bearer <MCP_API_KEY>"}
+    }
+  }
+}
+```
+
+Note the header has **no space** after `Authorization:` — `mcp-remote` splits args on whitespace, so the value (including `Bearer`) is passed via the `${AUTH}` env var instead. Needs Node on PATH (`npx`).
+
+verify: fully quit and reopen Claude Desktop, then click `+` (beneath chat), -> Connectors — you should see `docintel`. Click `Manage connectors` to see its tools.
 
 Hosts namespace tools per server, so our generic names (`search`, …) can't collide with other connected servers.
 
@@ -224,3 +251,8 @@ Credentials are provided separately to reviewers, not in this repository.
 This project was built with Claude Code in a spec-first workflow: design dialogue → written spec → task-by-task implementation plan → TDD execution. Full written answers (Part 1): [docs/part1-ai-assisted-coding.md](docs/part1-ai-assisted-coding.md).
 
 Where AI was used, in one paragraph: architecture and trade-off exploration (vector store, chunking, tool design) happened in a reviewed dialogue; every decision above was human-arbitrated. Code was AI-generated against a pre-approved plan with tests written first, then human-reviewed. Notable steering moments: pinning `mcp` to stable 1.x after discovering v2 is beta-only (stale-training-data risk, mitigated by live docs lookup); catching that `models.Document` upserts request cloud-only server-side inference — the in-memory test mode masked it, the real-container smoke test exposed it; the delete-before-first-upload crash caught by tests.
+
+## Where the AI failed
+
+- Tool testing falls flat, user steered AI towards creating plausible docs for scrupolous tool testing
+- Claude Desktop MCP setup was broken altogether, user fixed it with AI help
