@@ -63,7 +63,7 @@ Built as the practical assignment for indigo.ai's *AI Solutions Engineer* role. 
 | Same filename, new hash | New version: delete old vectors (delete-first — v2 may have fewer chunks), re-ingest under the same document id |
 | Neither | New document |
 
-Write ordering doubles as the transaction strategy: all pure computation first, then vector upsert, then the SQLite row *last* — metadata never references chunks that don't exist. On failure mid-write, the document's points are deleted. Point IDs are deterministic (`uuid5(document_id:chunk_index)`) so a crashed ingestion retried overwrites its partial work instead of duplicating it.
+Write ordering doubles as the transaction strategy: all pure computation first, then vector upsert, then the SQLite row *last* — metadata never references chunks that don't exist. On failure mid-write, the document's points are deleted. IDs are deterministic end to end — new document ids derive from the content hash (`uuid5(sha256)`), point ids from `uuid5(document_id:chunk_index)` — so a retry after *any* crash (even a hard process death between the vector write and the metadata write, where no cleanup can run) regenerates the same ids and overwrites its partial work instead of orphaning it. As a second line of defense, search skips any point whose document has no metadata row.
 
 **Consistency rule** — Qdrant payloads hold only immutable-per-version fields. Mutable metadata (filename, tags) lives solely in SQLite and is joined into results at response time; tag-scoped search resolves tags → document ids in SQLite, then filters Qdrant by id. One source of truth per fact; no stale-payload bug class.
 
@@ -244,9 +244,10 @@ Credentials are provided separately to reviewers, not in this repository.
 - Tool results are JSON in text content; MCP `structuredContent` (typed output schemas) would let strict clients validate.
 - SQLite → Postgres when running multiple app instances.
 - Static Bearer → OAuth 2.1 resource server for real multi-client auth.
-- Re-ranking with a cross-encoder after RRF; LLM auto-tagging at ingestion.
-- No staging environment online, only live prod.
-- Tag suggestions on document upload (weigh against the LLM token cost to analyze doc)
+- Re-ranking: a cross-encoder precision stage over the RRF candidates.
+- LLM auto-tagging (suggested tags at ingestion, human-confirmed).
+- Create staging environment online, not just live prod.
+- Orphan-point janitor: periodic reconciliation deleting Qdrant points whose document has no metadata row (deterministic ids already make orphans overwrite-on-retry; a janitor would clean residue that is never retried, e.g. after a chunker-config change between crash and retry).
 
 ## AI-assisted development
 
