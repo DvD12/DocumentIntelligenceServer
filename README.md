@@ -4,10 +4,11 @@ Backend infrastructure that turns a folder of internal documents (policies, manu
 
 Built as the practical assignment for indigo.ai's *AI Solutions Engineer* role. The scenario: a financial-services client wants employees to ask questions in natural language and get precise, grounded, **citable** answers from their document base.
 
-- Management UI: `https://documentintelligenceserver-production.up.railway.app` (HTTP Basic)
-- MCP endpoint: `https://documentintelligenceserver-production.up.railway.app/mcp` (Bearer token)
+- **Management UI**: `https://documentintelligenceserver-production.up.railway.app` (HTTP Basic)
+- **MCP endpoint**: `https://documentintelligenceserver-production.up.railway.app/mcp` (Bearer token)
 
-- Part 1 answers: docs/part1-ai-assisted-coding.md
+- **DEMO video**: https://drive.google.com/file/d/1wno72G4ex9Rns7FnzqQP_OoM-tcM03Pb/view?usp=sharing
+- **Part 1 answers**: docs/part1-ai-assisted-coding.md
 
 ## Architecture
 
