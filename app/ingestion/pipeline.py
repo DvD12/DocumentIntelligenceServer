@@ -55,7 +55,12 @@ class IngestionPipeline:
         if same_name is not None:  # dedup rule 2: new version of a known file
             document_id, outcome = same_name.id, "updated"
         else:  # dedup rule 3: brand-new document
-            document_id, outcome = str(uuid.uuid4()), "created"
+            # Content-derived id: a retry after a hard crash (points written,
+            # metadata row not) regenerates the same id and overwrites the
+            # residue instead of orphaning it. Versions keep the original id
+            # via rule 2, so identity still survives content changes.
+            document_id = str(uuid.uuid5(uuid.NAMESPACE_URL, content_hash))
+            outcome = "created"
 
         chunks = chunk_document(
             parsed, filename, document_id, self._chunk_tokens, self._chunk_overlap

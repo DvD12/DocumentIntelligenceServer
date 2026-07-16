@@ -72,6 +72,33 @@ def test_failed_upsert_leaves_no_metadata(env, monkeypatch):
     assert repo.count_documents() == 0
 
 
+def test_new_document_id_is_content_derived(env):
+    repo, store, pipeline = env
+    first = pipeline.ingest("policy.md", DOC_V1, [])
+    pipeline.delete(first.document.id)
+    again = pipeline.ingest("policy.md", DOC_V1, [])
+    assert again.document.id == first.document.id
+
+
+def test_hard_crash_retry_overwrites_orphans(env, monkeypatch):
+    repo, store, pipeline = env
+    # Simulate process death between the Qdrant upsert and the SQLite write:
+    # the metadata insert never happens AND the compensating delete never runs.
+    monkeypatch.setattr(store, "delete_document", lambda *a, **k: None)
+    monkeypatch.setattr(
+        repo, "create_document", lambda *a, **k: (_ for _ in ()).throw(RuntimeError("died"))
+    )
+    with pytest.raises(RuntimeError):
+        pipeline.ingest("policy.md", DOC_V1, [])
+    monkeypatch.undo()
+
+    result = pipeline.ingest("policy.md", DOC_V1, [])
+    assert result.outcome == "created"
+    # Retry must have overwritten the crash residue, not duplicated it:
+    total_points = store._client.count("chunks").count
+    assert total_points == result.document.chunk_count
+
+
 def test_delete_removes_points_and_row(env):
     repo, store, pipeline = env
     result = pipeline.ingest("policy.md", DOC_V1, [])
