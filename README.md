@@ -7,6 +7,8 @@ Built as the practical assignment for indigo.ai's *AI Solutions Engineer* role. 
 - Management UI: `https://documentintelligenceserver-production.up.railway.app` (HTTP Basic)
 - MCP endpoint: `https://documentintelligenceserver-production.up.railway.app/mcp` (Bearer token)
 
+- Part 1 answers: docs/part1-ai-assisted-coding.md
+
 ## Architecture
 
 ```
@@ -260,3 +262,4 @@ Where AI was used, in one paragraph: architecture and trade-off exploration (vec
 - Tool testing falls flat, I steered AI towards creating plausible docs for scrupolous tool testing
 - Claude Desktop MCP setup was broken altogether, I fixed it with AI help
 - AI never mentioned real-world best practices for deployment: just suggested running the app on Railway and we're good to go. But we would benefit from a staging/prod split, as that would allow me to run end-to-end tests in a non-critical environment whose results, most importantly, would be more impactful than local. For instance, I caught document deletion failing only on live — it 500'd because Qdrant Cloud rejects a filtered delete on an unindexed payload field, while local Docker Qdrant (and the in-memory test mode) happily allow it, so neither the test suite nor localhost surfaced the bug. That's the same "local masks cloud-only behavior" class as the `models.Document` upsert issue above, and the fix was to create the `document_id` payload index at startup. A staging environment would have caught it before prod — but only because it would run against the real Qdrant Cloud backend, not a local container; a staging env that mirrors local's store would have missed it just the same. The general lesson: staging is only worth its cost when it mirrors prod's *infrastructure*, not just its code.
+- AI claimed the crash-retry logic was deterministic/idempotent; I reviewed the code and it turned out it wasn't. AI acknowledged the mistake, validated the consequences with tests, and corrected the mistake.
