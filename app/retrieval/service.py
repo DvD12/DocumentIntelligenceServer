@@ -35,10 +35,12 @@ class SearchService:
             m.id: m
             for m in self._repo.get_many({p.payload["document_id"] for p in points})
         }
-        results = [
-            self._result(rank, p.payload, metas[p.payload["document_id"]])
-            for rank, p in enumerate(points, start=1)
-        ]
+        results = []
+        for p in points:
+            meta = metas.get(p.payload["document_id"])
+            if meta is None:
+                continue  # orphaned point (hard-crash residue): never surface it
+            results.append(self._result(len(results) + 1, p.payload, meta))
         searched = len(doc_ids) if doc_ids is not None else self._repo.count_documents()
         return {"query": query, "results": results, "documents_searched": searched}
 

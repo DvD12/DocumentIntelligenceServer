@@ -76,3 +76,24 @@ def test_expand_returns_neighbors(env):
 def test_expand_unknown_document(env):
     with pytest.raises(UnknownDocumentsError):
         env.expand("no-such-id", 0)
+
+
+def test_search_skips_orphan_points(tmp_path):
+    from app.core.models import Chunk
+
+    repo = MetadataRepo(str(tmp_path / "meta.db"))
+    store = QdrantStore(QdrantClient(":memory:"), dense_dim=64)
+    emb = FakeEmbedder(dim=64)
+    IngestionPipeline(repo, store, emb, 450, 0.15).ingest("aml-policy.md", AML, ["compliance"])
+    # Orphan = points whose document_id has no SQLite row (hard-crash residue).
+    ghost = Chunk(
+        document_id="ghost", chunk_index=0,
+        text="tier-2 transfer caps ghost data",
+        prefixed_text="ghost.md — tier-2 transfer caps ghost data",
+        heading_path=[], token_count=6,
+    )
+    store.upsert_chunks([ghost], emb.embed([ghost.prefixed_text]))
+
+    out = SearchService(repo, store, emb).search("tier-2 transfer caps")
+    assert any(r["document"]["filename"] == "aml-policy.md" for r in out["results"])
+    assert all(r["document"]["id"] != "ghost" for r in out["results"])
